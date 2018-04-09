@@ -21,12 +21,14 @@ import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -35,6 +37,7 @@ import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
@@ -46,8 +49,10 @@ import java.util.Date;
 
 public class DateTimeSettings extends SettingsPreferenceFragment
         implements OnSharedPreferenceChangeListener,
-                TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
+                /*TimePickerDialog.OnTimeSetListener,*/ DatePickerDialog.OnDateSetListener {
 
+    public static final String POWEROFF_TIME = "poweroff_time";//advantech
+    public static final String POWERON_TIME = "poweron_time";//advantech
     private static final String HOURS_12 = "12";
     private static final String HOURS_24 = "24";
 
@@ -57,9 +62,12 @@ public class DateTimeSettings extends SettingsPreferenceFragment
 
     private static final String KEY_AUTO_TIME = "auto_time";
     private static final String KEY_AUTO_TIME_ZONE = "auto_zone";
+    private static final String KEY_AUTO_POWER = "auto_power";//advantech
 
     private static final int DIALOG_DATEPICKER = 0;
     private static final int DIALOG_TIMEPICKER = 1;
+    private static final int DIALOG_POWEROFF_TIMEPICKER = 2;//advantech
+    private static final int DIALOG_POWERON_TIMEPICKER = 3;//advantech
 
     // have we been launched from the setup wizard?
     protected static final String EXTRA_IS_FIRST_RUN = "firstRun";
@@ -70,6 +78,9 @@ public class DateTimeSettings extends SettingsPreferenceFragment
     private SwitchPreference mAutoTimeZonePref;
     private Preference mTimeZone;
     private Preference mDatePref;
+    private SwitchPreference mAutoPowerPref;//advantech
+    private Preference mPowerOffTimePref;//advantech
+    private Preference mPowerOnTimePref;//advantech
 
     @Override
     protected int getMetricsCategory() {
@@ -88,6 +99,7 @@ public class DateTimeSettings extends SettingsPreferenceFragment
     private void initUI() {
         boolean autoTimeEnabled = getAutoState(Settings.Global.AUTO_TIME);
         boolean autoTimeZoneEnabled = getAutoState(Settings.Global.AUTO_TIME_ZONE);
+        boolean autoPowerTimeEnabled = getAutoState(Settings.Global.AUTO_POWER_TIME);//advantech
 
         mAutoTimePref = (SwitchPreference) findPreference(KEY_AUTO_TIME);
 
@@ -115,11 +127,16 @@ public class DateTimeSettings extends SettingsPreferenceFragment
             autoTimeZoneEnabled = false;
         }
         mAutoTimeZonePref.setChecked(autoTimeZoneEnabled);
+        mAutoPowerPref = (SwitchPreference) findPreference(KEY_AUTO_POWER);//advantech
+        mAutoPowerPref.setChecked(autoPowerTimeEnabled);//advantech
 
         mTimePref = findPreference("time");
         mTime24Pref = findPreference("24 hour");
         mTimeZone = findPreference("timezone");
         mDatePref = findPreference("date");
+        mPowerOffTimePref = findPreference("poweroff_time");//advantech
+        mPowerOnTimePref = findPreference("poweron_time");//advantech
+
         if (isFirstRun) {
             getPreferenceScreen().removePreference(mTime24Pref);
         }
@@ -127,6 +144,8 @@ public class DateTimeSettings extends SettingsPreferenceFragment
         mTimePref.setEnabled(!autoTimeEnabled);
         mDatePref.setEnabled(!autoTimeEnabled);
         mTimeZone.setEnabled(!autoTimeZoneEnabled);
+        mPowerOffTimePref.setEnabled(autoPowerTimeEnabled);//advantech
+        mPowerOnTimePref.setEnabled(autoPowerTimeEnabled);//advantech
     }
 
     @Override
@@ -167,6 +186,8 @@ public class DateTimeSettings extends SettingsPreferenceFragment
         mTimePref.setSummary(DateFormat.getTimeFormat(getActivity()).format(now.getTime()));
         mTimeZone.setSummary(ZoneGetter.getTimeZoneOffsetAndName(now.getTimeZone(), now.getTime()));
         mTime24Pref.setSummary(DateFormat.getTimeFormat(getActivity()).format(dummyDate));
+        mPowerOffTimePref.setSummary(getPrefStr(POWEROFF_TIME));//advantech
+        mPowerOnTimePref.setSummary(getPrefStr(POWERON_TIME));//advantech
     }
 
     @Override
@@ -178,6 +199,8 @@ public class DateTimeSettings extends SettingsPreferenceFragment
         }
     }
 
+    //advantech
+    /*
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         final Activity activity = getActivity();
@@ -190,6 +213,8 @@ public class DateTimeSettings extends SettingsPreferenceFragment
         // broadcast is sent by the AlarmManager as a side effect of setting the
         // SystemClock time.
     }
+    */
+    //advantech
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
@@ -204,7 +229,23 @@ public class DateTimeSettings extends SettingsPreferenceFragment
             Settings.Global.putInt(
                     getContentResolver(), Settings.Global.AUTO_TIME_ZONE, autoZoneEnabled ? 1 : 0);
             mTimeZone.setEnabled(!autoZoneEnabled);
+        //advantech
+        } else if (key.equals(KEY_AUTO_POWER)) {
+            boolean autoPowerEnabled = preferences.getBoolean(key, false);
+            Settings.Global.putInt(
+                    getContentResolver(), Settings.Global.AUTO_POWER_TIME, autoPowerEnabled ? 1 : 0);
+            mPowerOffTimePref.setEnabled(autoPowerEnabled);
+            mPowerOnTimePref.setEnabled(autoPowerEnabled);
+            if(autoPowerEnabled){
+                setPoweroff(Integer.parseInt(getPrefStrHour(POWEROFF_TIME)), Integer.parseInt(getPrefStrMinute(POWEROFF_TIME)));
+                setPoweron(Integer.parseInt(getPrefStrHour(POWERON_TIME)), Integer.parseInt(getPrefStrMinute(POWERON_TIME)), true);
+            }else{
+                setPoweron(Integer.parseInt(getPrefStrHour(POWERON_TIME)), Integer.parseInt(getPrefStrMinute(POWERON_TIME)),false);
+                //canclePoweron(Integer.parseInt(getPrefStrHour(POWERON_TIME)), Integer.parseInt(getPrefStrMinute(POWERON_TIME)), false);
+            }
         }
+		
+        //advantech
     }
 
     @Override
@@ -223,10 +264,59 @@ public class DateTimeSettings extends SettingsPreferenceFragment
         case DIALOG_TIMEPICKER:
             return new TimePickerDialog(
                     getActivity(),
-                    this,
+                    //advantech
+                    //this,
+                    new TimePickerDialog.OnTimeSetListener() {
+
+						@Override
+						public void onTimeSet(TimePicker view, int hourOfDay,
+								int minute) {
+							// TODO Auto-generated method stub
+							final Activity activity = getActivity();
+							if (activity != null) {
+								setTime(activity, hourOfDay, minute);
+								updateTimeAndDateDisplay(activity);
+							}
+
+							// We don't need to call timeUpdated() here because the TIME_CHANGED
+							// broadcast is sent by the AlarmManager as a side effect of setting the
+							// SystemClock time.
+						}
+					},
+					//advantech
                     calendar.get(Calendar.HOUR_OF_DAY),
                     calendar.get(Calendar.MINUTE),
                     DateFormat.is24HourFormat(getActivity()));
+		//advantech
+        case DIALOG_POWEROFF_TIMEPICKER:
+            return new TimePickerDialog(
+                    getActivity(),
+					new TimePickerDialog.OnTimeSetListener() {
+
+						@Override
+						public void onTimeSet(TimePicker view, int hourOfDay,
+								int minute) {
+							// TODO Auto-generated method stub
+							setPoweroff(hourOfDay, minute);
+						}
+					}, Integer.parseInt(getPrefStrHour(POWEROFF_TIME)),
+					Integer.parseInt(getPrefStrMinute(POWEROFF_TIME)),
+					DateFormat.is24HourFormat(getActivity()));
+        case DIALOG_POWERON_TIMEPICKER:
+            return new TimePickerDialog(
+                    getActivity(),
+					new TimePickerDialog.OnTimeSetListener() {
+
+						@Override
+						public void onTimeSet(TimePicker view, int hourOfDay,
+								int minute) {
+							// TODO Auto-generated method stub
+							setPoweron(hourOfDay, minute, true);
+							}
+					}, Integer.parseInt(getPrefStrHour(POWERON_TIME)),
+					Integer.parseInt(getPrefStrMinute(POWERON_TIME)),
+					DateFormat.is24HourFormat(getActivity()));
+        //advantech
         default:
             throw new IllegalArgumentException();
         }
@@ -282,7 +372,17 @@ public class DateTimeSettings extends SettingsPreferenceFragment
             set24Hour(is24Hour);
             updateTimeAndDateDisplay(getActivity());
             timeUpdated(is24Hour);
+        //advantech
+        } else if (preference == mPowerOffTimePref) {
+            // The 24-hour mode may have changed, so recreate the dialog
+            removeDialog(DIALOG_POWEROFF_TIMEPICKER);
+            showDialog(DIALOG_POWEROFF_TIMEPICKER);
+        } else if (preference == mPowerOnTimePref) {
+             // The 24-hour mode may have changed, so recreate the dialog
+            removeDialog(DIALOG_POWERON_TIMEPICKER);
+            showDialog(DIALOG_POWERON_TIMEPICKER);
         }
+        //advantech
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 
@@ -354,4 +454,105 @@ public class DateTimeSettings extends SettingsPreferenceFragment
             }
         }
     };
+	//advantech
+		public String getPrefStr(String prefName)
+		{
+			String value = getPreferenceScreen().getSharedPreferences().getString(prefName, "23:00");
+			return value;
+		};
+
+		public String getPrefStrHour(String prefName)
+		{
+			String value = getPreferenceScreen().getSharedPreferences().getString(prefName, "23:00");
+			String[] time = value.split(":");
+			return time[0];
+		};
+
+		public String getPrefStrMinute(String prefName)
+		{
+			String value = getPreferenceScreen().getSharedPreferences().getString(prefName, "23:00");
+			String[] time = value.split(":");
+			return time[1];
+		};
+
+		public void setPoweroff(int hourOfDay, int minute)
+		{
+			AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+			Intent intent = new Intent(
+					"com.android.settings.action.REQUEST_POWER_OFF");
+
+			Calendar calendar = Calendar.getInstance();
+
+			//if the triggerTime < now, it will be triggered next day.
+			if(hourOfDay < calendar.get(Calendar.HOUR_OF_DAY) ||
+					(hourOfDay == calendar.get(Calendar.HOUR_OF_DAY) &&
+					(minute < calendar.get(Calendar.MINUTE))))
+				calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+			calendar.set(Calendar.MINUTE, minute);
+
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0,
+					intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+			Log.e("Advantech", String.valueOf(calendar.getTimeInMillis()));
+			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+			//it link to AlarmManagerService, the set(type) can't be changed
+
+			Editor editor = getPreferenceScreen()
+					.getSharedPreferences().edit();
+			String dummyStr = String.format(
+					"%d:%d",
+					calendar.get(Calendar.AM_PM) == 1 ? calendar
+							.get(Calendar.HOUR) + 12 : calendar
+							.get(Calendar.HOUR), calendar
+							.get(Calendar.MINUTE));
+			editor.putString(POWEROFF_TIME, dummyStr);
+			editor.commit();
+
+			mPowerOffTimePref.setSummary(getPrefStr(POWEROFF_TIME));
+
+		}
+
+		public void setPoweron(int hourOfDay, int minute, boolean enable)
+		{
+			AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+			Intent intent = new Intent(
+				     	"com.android.settings.action.REQUEST_POWER_ON");
+            if(!enable){
+			    intent = new Intent(
+					    "com.android.settings.action.CANCLE_POWER_ON");
+			}
+
+			Calendar calendar = Calendar.getInstance();
+
+			//if the triggerTime < now, it will be triggered next day.
+			if(hourOfDay < calendar.get(Calendar.HOUR_OF_DAY) ||
+					(hourOfDay == calendar.get(Calendar.HOUR_OF_DAY) &&
+					(minute < calendar.get(Calendar.MINUTE))))
+				calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+			calendar.set(Calendar.MINUTE, minute);
+
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0,
+					intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+			am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+			//it link to AlarmManagerService, the set(type) can't be changed
+
+			Editor editor = getPreferenceScreen()
+					.getSharedPreferences().edit();
+			String dummyStr = String.format(
+					"%d:%d",
+					calendar.get(Calendar.AM_PM) == 1 ? calendar
+							.get(Calendar.HOUR) + 12 : calendar
+							.get(Calendar.HOUR), calendar
+							.get(Calendar.MINUTE));
+			editor.putString(POWERON_TIME, dummyStr);
+			editor.commit();
+
+			mPowerOnTimePref.setSummary(getPrefStr(POWERON_TIME));
+		}
+		//advantech
+
 }

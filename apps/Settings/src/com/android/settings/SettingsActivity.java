@@ -270,7 +270,7 @@ public class SettingsActivity extends Activity
             R.id.display_settings,
             R.id.storage_settings,
             R.id.application_settings,
-            R.id.battery_settings,
+            // R.id.battery_settings,
             R.id.personal_section,
             R.id.location_settings,
             R.id.security_settings,
@@ -835,7 +835,7 @@ public class SettingsActivity extends Activity
         mDevelopmentPreferences.registerOnSharedPreferenceChangeListener(
                 mDevelopmentPreferencesListener);
 
-        registerReceiver(mBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        // registerReceiver(mBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
         mDynamicIndexableContentMonitor.register(this);
 
@@ -850,7 +850,7 @@ public class SettingsActivity extends Activity
         if (mIsShowingDashboard) {
             MetricsLogger.hidden(this, MetricsLogger.MAIN_SETTINGS);
         }
-        unregisterReceiver(mBatteryInfoReceiver);
+        // unregisterReceiver(mBatteryInfoReceiver);
         mDynamicIndexableContentMonitor.unregister();
     }
 
@@ -1267,13 +1267,13 @@ public class SettingsActivity extends Activity
                     if (!Utils.isBandwidthControlEnabled()) {
                         removeTile = true;
                     }
-                } else if (id == R.id.battery_settings) {
+                } /* else if (id == R.id.battery_settings) {
                     // Remove battery settings when battery is not available. (e.g. TV)
 
                     if (!mBatteryPresent) {
                         removeTile = true;
                     }
-                } else if (id == R.id.home_settings) {
+                } */else if (id == R.id.home_settings) {
                     if (!updateHomeSettingTiles(tile)) {
                         removeTile = true;
                     }

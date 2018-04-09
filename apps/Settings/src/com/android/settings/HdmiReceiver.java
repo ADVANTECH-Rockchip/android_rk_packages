@@ -116,8 +116,8 @@ public class HdmiReceiver extends BroadcastReceiver {
 
 
 	protected void restoreHdmiValue(final File file, final String value, final String style) {
-		if(mDisplayManagement != null)
-			return;	
+		//if(mDisplayManagement != null)
+		//	return;	
 		Thread thread=new Thread(new Runnable() {
 			
 			@Override

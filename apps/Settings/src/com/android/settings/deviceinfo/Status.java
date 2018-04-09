@@ -245,7 +245,7 @@ public class Status extends InstrumentedPreferenceActivity {
         super.onResume();
         registerReceiver(mConnectivityReceiver, mConnectivityIntentFilter,
                          android.Manifest.permission.CHANGE_NETWORK_STATE, null);
-        registerReceiver(mBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        // registerReceiver(mBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         mHandler.sendEmptyMessage(EVENT_UPDATE_STATS);
     }
 
@@ -253,7 +253,7 @@ public class Status extends InstrumentedPreferenceActivity {
     public void onPause() {
         super.onPause();
 
-        unregisterReceiver(mBatteryInfoReceiver);
+        // unregisterReceiver(mBatteryInfoReceiver);
         unregisterReceiver(mConnectivityReceiver);
         mHandler.removeMessages(EVENT_UPDATE_STATS);
     }
