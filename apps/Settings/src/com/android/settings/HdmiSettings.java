@@ -123,7 +123,7 @@ public class HdmiSettings extends SettingsPreferenceFragment
 		mHdmiResolution = (ListPreference) findPreference(KEY_HDMI_RESOLUTION);
 		mHdmiResolution.setOnPreferenceChangeListener(this);
 		String resolutionValue = sharedPreferences
-				.getString("resolution", "1280x720p-60");
+				.getString("resolution", "1920x1080p-60");
 		mHdmiScale = findPreference(KEY_HDMI_SCALE);
 		mHdmiScale.setEnabled(enable.equals("1"));
 		Log.d(TAG,"onCreate---------------------");
@@ -142,7 +142,7 @@ public class HdmiSettings extends SettingsPreferenceFragment
 	    mSwitchBar.addOnSwitchChangeListener(this);
 	    mSwitchBar.setChecked(sharedPreferences.getString("enable", "1").equals("1"));
 	    
-	    String resolutionValue=sharedPreferences.getString("resolution", "1280x720p-60");
+	    String resolutionValue=sharedPreferences.getString("resolution", "1920x1080p-60");
 	    Log.d(TAG,"onActivityCreated resolutionValue="+resolutionValue);
 	   // context.registerReceiver(hdmiReceiver, new IntentFilter("android.intent.action.HDMI_PLUG"));
 	}
@@ -413,7 +413,7 @@ public class HdmiSettings extends SettingsPreferenceFragment
 				//String resolutionValue=sharedPreferences.getString("resolution", "1280x720p-60").trim()+"\n";
 					 resolutionValue=mDisplayManagement.getCurrentMode(mDisplay, 4);
 				}else{
-					 resolutionValue=sharedPreferences.getString("resolution", "1280x720p-60").trim()+"\n";
+					 resolutionValue=sharedPreferences.getString("resolution", "1920x1080p-60").trim()+"\n";
 				}
 			   // Log.d(TAG,"HdmiModeTask resolutionValue="+resolutionValue);
 			    mHdmiResolution.setValue(resolutionValue);
