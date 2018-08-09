@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,6 +41,7 @@ import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.Preference;
@@ -57,6 +59,8 @@ import android.util.Xml;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -526,6 +530,8 @@ public class SettingsActivity extends Activity
         }
         mSearchView.setQuery(query, true /* submit */);
 
+        MenuItem mCustomMenuItem = menu.findItem(R.id.function_button);
+        mCustomMenuItem.setVisible(SystemProperties.getBoolean("persist.setting.func_button", false));
         return true;
     }
 
@@ -712,6 +718,25 @@ public class SettingsActivity extends Activity
         }
 
         mHomeActivitiesCount = getHomeActivitiesCount();
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        if(menuItem.getItemId() == R.id.function_button){
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        int key = SystemProperties.getInt("persist.setting.func_keycode", 0);
+                        Instrumentation inst = new Instrumentation();
+                        inst.sendKeyDownUpSync(key);
+                    } catch (Exception e) {
+                        Log.e("Exception when sendKeyDownUpSync", e.toString());
+                    }
+                }
+            }.start();
+        }
+        return super.onOptionsItemSelected(menuItem);
     }
 
     private int getHomeActivitiesCount() {

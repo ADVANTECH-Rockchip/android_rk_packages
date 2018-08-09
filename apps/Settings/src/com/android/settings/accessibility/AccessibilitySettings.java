@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -592,6 +593,18 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             mGlobalGesturePreferenceScreen.setSummary(
                     R.string.accessibility_global_gesture_preference_summary_off);
         }
+        if (!SystemProperties.getBoolean("persist.setting.acc.largetext", true)) {
+            mSystemsCategory.removePreference(mToggleLargeTextPreference);
+        }
+        if (!SystemProperties.getBoolean("persist.setting.acc.contrasttxt", true)) {
+            mSystemsCategory.removePreference(mToggleHighTextContrastPreference);
+        }
+        if (!SystemProperties.getBoolean("persist.setting.acc.autorotate", true)) {
+            mSystemsCategory.removePreference(mToggleLockScreenRotationPreference);
+        }
+        if (!SystemProperties.getBoolean("persist.setting.acc.speakpwd", true)) {
+            mSystemsCategory.removePreference(mToggleSpeakPasswordPreference);
+		}
     }
 
     private void updateFeatureSummary(String prefKey, Preference pref) {

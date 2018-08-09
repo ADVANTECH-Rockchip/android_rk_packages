@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
+import android.os.SystemProperties;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView.State;
 import android.util.AttributeSet;
@@ -181,6 +182,9 @@ public class WidgetsContainerView extends BaseContainerView
 
     private boolean beginDragging(View v) {
         if (v instanceof WidgetCell) {
+    	    if(!SystemProperties.getBoolean("persist.launcher.drag_widget", true)){
+                return false;
+            }
             if (!beginDraggingWidget((WidgetCell) v)) {
                 return false;
             }

@@ -151,6 +151,12 @@ public final class Utils {
 
     public static final String OS_PKG = "os";
 
+    public static final int UI_NORMAL = 0x0;
+    public static final int UI_ENABLE = 0x1;
+    public static final int UI_DISABLE = 0x2;
+    public static final int UI_ON = 0x4;
+    public static final int UI_OFF = 0x8;
+
     private static SparseArray<Bitmap> sDarkDefaultUserBitmapCache = new SparseArray<Bitmap>();
 
     /**

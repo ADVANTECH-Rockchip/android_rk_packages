@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.SystemProperties;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
@@ -159,6 +160,7 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
         } else {
             mQSBSearchBarAnimator = null;
         }
+        setVisibility(SystemProperties.getBoolean("persist.launcher.searchbar", true) ? View.VISIBLE : View.GONE);
     }
 
     /**

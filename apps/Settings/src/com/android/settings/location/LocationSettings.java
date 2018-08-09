@@ -16,12 +16,23 @@
 
 package com.android.settings.location;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import com.android.internal.logging.MetricsLogger;
+import com.android.settings.R;
+import com.android.settings.SettingsActivity;
+import com.android.settings.Utils;
+import com.android.settings.widget.SwitchBar;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.SettingInjectorService;
 import android.os.Bundle;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.Preference;
@@ -33,15 +44,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
-import com.android.internal.logging.MetricsLogger;
-import com.android.settings.R;
-import com.android.settings.SettingsActivity;
-import com.android.settings.Utils;
-import com.android.settings.widget.SwitchBar;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * System location settings (Settings &gt; Location). The screen has three parts:
@@ -216,6 +218,8 @@ public class LocationSettings extends LocationSettingsBase
         }
         addLocationServices(activity, root, lockdownOnLocationAccess);
 
+        boolean prop = SystemProperties.getBoolean("persist.setting.loc", true);
+        mSwitch.setVisibility(prop? android.view.View.VISIBLE : android.view.View.GONE);
         refreshLocationMode();
         return root;
     }

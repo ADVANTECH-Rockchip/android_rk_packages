@@ -370,6 +370,10 @@ public class WirelessSettings extends SettingsPreferenceFragment implements Inde
             Preference ps = findPreference(KEY_CELL_BROADCAST_SETTINGS);
             if (ps != null) root.removePreference(ps);
         }
+		if (!SystemProperties.getBoolean("persist.setting.net.airplane", true)) {
+             removePreference(KEY_MOBILE_NETWORK_SETTINGS);
+             getPreferenceScreen().removePreference(mAirplaneModePreference);
+        }
     }
 
     @Override

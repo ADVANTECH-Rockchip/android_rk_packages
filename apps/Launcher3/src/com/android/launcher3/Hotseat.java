@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.os.SystemProperties;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -136,7 +137,10 @@ public class Hotseat extends FrameLayout
         int y = getCellYFromOrder(mAllAppsButtonRank);
         CellLayout.LayoutParams lp = new CellLayout.LayoutParams(x,y,1,1);
         lp.canReorder = false;
-        mContent.addViewToCellLayout(allAppsButton, -1, allAppsButton.getId(), lp, true);
+        //mContent.addViewToCellLayout(allAppsButton, -1, allAppsButton.getId(), lp, true);
+		if(SystemProperties.getBoolean("persist.launcher.allappsbutton", true)){
+             mContent.addViewToCellLayout(allAppsButton, -1, 0, lp, true);
+        }
     }
 
     @Override

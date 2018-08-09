@@ -112,5 +112,15 @@
                 style="?android:preferenceInformationStyle"
                 android:title="@string/selinux_status"
                 android:summary="@string/selinux_status_enforcing"/>
+                
+        <Preference android:key="board_name"
+                style="?android:preferenceInformationStyle"
+                android:title="@string/board_name"
+                android:summary="@string/device_info_default"/>
+                
+        <Preference android:key="board_version"
+                style="?android:preferenceInformationStyle"
+                android:title="@string/board_version"
+                android:summary="@string/device_info_default"/>
 
 </PreferenceScreen>

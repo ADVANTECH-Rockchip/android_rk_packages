@@ -23,6 +23,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.PreferenceFrameLayout;
@@ -587,7 +588,10 @@ public class ManageApplications extends InstrumentedFragment
             ApplicationsState.AppEntry entry = mApplications.getAppEntry(position);
             mCurrentPkgName = entry.info.packageName;
             mCurrentUid = entry.info.uid;
-            startApplicationDetailsActivity();
+            //startApplicationDetailsActivity();
+			if (SystemProperties.getBoolean("persist.setting.manageapp", true)) {
+                 startApplicationDetailsActivity();
+            }
         }
     }
 
