@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="clik to set screen rotation"
+     >
+       <Preference
+           android:order="1"
+           android:key="rotation_0"
+           android:summary="set rotation 0"
+           android:title="rotation_0"
+           >
+       </Preference>
+       <Preference
+           android:order="2"
+           android:key="rotation_90"
+           android:summary="set rotation 90"
+           android:title="rotation_90"
+           >
+       </Preference>
+	          <Preference
+           android:order="3"
+           android:key="rotation_180"
+           android:summary="set rotation 180"
+           android:title="rotation_180"
+           >
+       </Preference>
+       <Preference
+           android:order="4"
+           android:key="rotation_270"
+           android:summary="set rotation 270"
+           android:title="rotation_270"
+           >
+       </Preference>
+</PreferenceScreen>

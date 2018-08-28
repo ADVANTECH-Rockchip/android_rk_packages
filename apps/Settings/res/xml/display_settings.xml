@@ -113,4 +113,11 @@
                 android:key="cabc"
                 android:title="@string/cabc_setting"
                 android:persistent="true" />
+       <PreferenceScreen
+               android:key="screen_rotation"
+               android:title="@string/screen_rotation_settings_title">
+            <intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="com.android.settings"
+                    android:targetClass="com.android.settings.ScreenRotationSettings" />
+        </PreferenceScreen>
 </PreferenceScreen>
