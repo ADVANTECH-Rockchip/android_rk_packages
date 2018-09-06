@@ -510,7 +510,31 @@ public class Advanlib {
         }
 		return result;
     }
+/******************************************************************************************************/
+/************************************** UI ---- launcher **********************************************/
 
+/**
+ * Set the system default launcher to the current launcher
+ */
+	public void setDefaultLauncher() {
+		try {
+			mAdvSdklib.setDefaultLauncher();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+/**
+ * Set the custom launcher to the current launcher
+ * @param pkgname Package name of custom launcher
+ * @param changenow Whether it takes effect immediately
+ */
+	public void setCustomizedLauncher(String pkgname, boolean changenow) {
+		try {
+			mAdvSdklib.setCustomizedLauncher(pkgname, changenow);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
 /******************************************************************************************************/
 
 /*********************************************** UI End *****************************************************/
