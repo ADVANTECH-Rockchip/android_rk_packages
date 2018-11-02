@@ -64,15 +64,10 @@ public class HdmiReceiver extends BroadcastReceiver {
 			String scale = null;
 			String resol = null;
 			int state = intent.getIntExtra("state", 0);
-			Log.d(TAG,"hdmi state ="+state);
 			if (state == 1) {
 				enable = preferences.getString("enable", "1");
 				resol = preferences.getString("resolution", "1920x1080p-60").trim()+"\n";
 				scale = preferences.getString("scale_set", "100");
-
-				Log.d(TAG,"hdmi resol ="+resol);
-
-				
 				restoreHdmiValue(HdmiDisplayEnable, enable, "enable");
 				restoreHdmiValue(HdmiDisplayMode, resol, "hdmi_resolution");
 				restoreHdmiValue(HdmiDisplayScale, scale, "hdmi_scale");

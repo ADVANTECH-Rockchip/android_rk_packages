@@ -54,8 +54,6 @@ public class ScreenRotationSettings extends PreferenceActivity {
 	public TextView Text1 ;
 	private ProgressBar bar;
 
-
-
 	Handler handler = new Handler(){
 		@Override
 			public void handleMessage(Message msg){
@@ -79,6 +77,31 @@ public class ScreenRotationSettings extends PreferenceActivity {
 			rotation_90_preference = (Preference) findPreference("rotation_90");
 			rotation_180_preference = (Preference) findPreference("rotation_180");
 			rotation_270_preference = (Preference) findPreference("rotation_270");
+			String strHwRotation = SystemProperties.get("persist.sys.hwrotation", "0");
+			switch(Integer.parseInt(strHwRotation)) {
+			case 0:
+			{
+				rotation_0_preference.setEnabled(false);
+				break;
+			}
+			case 180:
+			{
+				rotation_180_preference.setEnabled(false);
+				break;
+			}
+			case 90:
+			{
+				rotation_90_preference.setEnabled(false);
+				break;
+			}
+			case 270:
+			{
+				rotation_270_preference.setEnabled(false);
+				break;
+			}
+			default :
+				break;
+			}
 			builder =new AlertDialog.Builder(this);
 			view=(LinearLayout) getLayoutInflater().inflate(R.layout.screen_rotation,null);
 			Text1 = (TextView)view.findViewById(R.id.Text1);
