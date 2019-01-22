@@ -49,6 +49,7 @@
         <uses-library android:name="com.google.android.media.effects" android:required="false" />
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
         <activity android:name="com.android.gallery3d.app.MovieActivity"
+                android:theme="@style/Theme.Gallery.MovieActivity"
                 android:label="@string/movie_view_label"
                 android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>

@@ -297,4 +297,11 @@
         <item name="android:drawablePadding">8dp</item>
         <item name="android:background">@drawable/bg_pressed</item>
     </style>
+
+    <style name="Theme.Gallery.MovieActivity" parent="Theme.Gallery">
+        <item name="android:windowAnimationStyle">@style/Animation_MovieActivity</item>
+    </style>
+    <style name="Animation_MovieActivity">
+        <item name="android:windowExitAnimation">@anim/slide_out_top</item>
+    </style>
 </resources>

@@ -829,6 +829,11 @@ public class SettingsActivity extends SettingsDrawerActivity
                 SystemProperties.get("ro.build.characteristics","null").equals("tablet"), isAdmin) || somethingChanged;
 
         somethingChanged = setTileEnabled(new ComponentName(packageName,
+                        Settings.HdmiSettingsActivity.class.getName()),
+                "true".equals(SystemProperties.get("ro.rk.hdmisetting")), isAdmin)
+                || somethingChanged;
+
+        somethingChanged = setTileEnabled(new ComponentName(packageName,
                         Settings.DateTimeSettingsActivity.class.getName()),
                 !UserManager.isDeviceInDemoMode(this), isAdmin)
                 || somethingChanged;
