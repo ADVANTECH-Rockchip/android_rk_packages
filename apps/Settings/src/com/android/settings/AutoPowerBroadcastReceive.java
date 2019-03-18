@@ -23,28 +23,32 @@ public class AutoPowerBroadcastReceive extends BroadcastReceiver {
 		SharedPreferences sharedPreferences = context
 				.getSharedPreferences("com.android.settings_preferences",
 						Activity.MODE_PRIVATE);
-		Log.e("Advantech", "ShutdownBroadcastReceive---1");
 		boolean autoPowerTimeEnabled = sharedPreferences.getBoolean("auto_power", false);
 		if (autoPowerTimeEnabled) {
 			if (from_intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+				Calendar calendar = Calendar.getInstance();
 
 				String poweroff_time = sharedPreferences.getString(POWEROFF_TIME, "");
-				String[] time = poweroff_time.split(":"); 
+				String poweron_time = sharedPreferences.getString(POWERON_TIME, "23:00");
+				int current_time_day = calendar.get(Calendar.DAY_OF_YEAR);
+				String current_time = String.format("%tR", calendar.getTime());
+				String[] timeoff = poweroff_time.split(":");
+				String[] timeon = poweron_time.split(":");
+				long poweroff = Long.valueOf(poweroff_time.replaceAll("[-\\s:]",""));
+				long poweron = Long.valueOf(poweron_time.replaceAll("[-\\s:]",""));
+				long current = Long.valueOf(current_time.replaceAll("[-\\s:]",""));
 				
 				AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
 		        Intent poweroff_intent = new Intent(
 		                "com.android.settings.action.REQUEST_POWER_OFF");
 
-		        Calendar calendar = Calendar.getInstance();
-
-		        if(Integer.parseInt(time[0]) < calendar.get(Calendar.HOUR_OF_DAY) || 
-		        		(Integer.parseInt(time[0]) == calendar.get(Calendar.HOUR_OF_DAY) && 
-		        		(Integer.parseInt(time[1]) < calendar.get(Calendar.MINUTE))))
-		        	 calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+		        if(current > poweroff) {
+                    calendar.set(Calendar.DAY_OF_YEAR, current_time_day + 1);
+		        }
 		        	
-		        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(time[0]));  
-		        calendar.set(Calendar.MINUTE, Integer.parseInt(time[1]));
+		        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeoff[0]));
+		        calendar.set(Calendar.MINUTE, Integer.parseInt(timeoff[1]));
 		        calendar.set(Calendar.SECOND, 0);
 		        calendar.set(Calendar.MILLISECOND, 0);
 		        
@@ -53,17 +57,19 @@ public class AutoPowerBroadcastReceive extends BroadcastReceiver {
 		        am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 		        
-		        String poweron_time = sharedPreferences.getString(POWERON_TIME, "23:00");
-				time = poweron_time.split(":");
+		        //String poweron_time = sharedPreferences.getString(POWERON_TIME, "23:00");
+				//time = poweron_time.split(":");
 				Intent poweron_intent = new Intent(
 		                "com.android.settings.action.REQUEST_POWER_ON");
-				if(Integer.parseInt(time[0]) < calendar.get(Calendar.HOUR_OF_DAY) || 
-		        		(Integer.parseInt(time[0]) == calendar.get(Calendar.HOUR_OF_DAY) && 
-		        		(Integer.parseInt(time[1]) < calendar.get(Calendar.MINUTE))))
-		        	 calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+
+				if((current > poweron) ||
+						((current < poweron) && (current > poweroff)) ||
+						((current < poweron) && (poweron < poweroff))) {
+					calendar.set(Calendar.DAY_OF_YEAR, current_time_day + 1);
+				}
 		        	
-		        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(time[0]));  
-		        calendar.set(Calendar.MINUTE, Integer.parseInt(time[1]));
+		        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeon[0]));
+		        calendar.set(Calendar.MINUTE, Integer.parseInt(timeon[1]));
 		        calendar.set(Calendar.SECOND, 0);
 		        calendar.set(Calendar.MILLISECOND, 0);
 		        
@@ -73,8 +79,6 @@ public class AutoPowerBroadcastReceive extends BroadcastReceiver {
 		        am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), poweron_pendingIntent);
 		        
 			} else if (from_intent.getAction().equals("com.android.settings.action.REQUEST_POWER_OFF")) {
-				Log.e("Advantech", "Receive Shutdown Broadcast\n");
-
 				/*
 				 * Intent intent = new Intent(Intent.ACTION_SHUTDOWN); //
 				 * intent.putExtra(Intent.EXTRA_KEY_CONFIRM, false);
@@ -86,7 +90,6 @@ public class AutoPowerBroadcastReceive extends BroadcastReceiver {
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivityAsUser(intent, UserHandle.CURRENT);
 			} else if (from_intent.getAction().equals("com.android.settings.action.REQUEST_POWER_ON")) {
-				Log.e("Advantech", "Receive PowerOn Broadcast\n");
 			}
 		}
 	}

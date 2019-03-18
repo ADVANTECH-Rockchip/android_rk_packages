@@ -483,35 +483,49 @@ public class DateTimeSettings extends SettingsPreferenceFragment
 					"com.android.settings.action.REQUEST_POWER_OFF");
 
 			Calendar calendar = Calendar.getInstance();
-
-			//if the triggerTime < now, it will be triggered next day.
-			if(hourOfDay < calendar.get(Calendar.HOUR_OF_DAY) ||
-					(hourOfDay == calendar.get(Calendar.HOUR_OF_DAY) &&
-					(minute < calendar.get(Calendar.MINUTE))))
-				calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+			int current_time_day = calendar.get(Calendar.DAY_OF_YEAR);
+			String current_time = String.format("%tR", calendar.getTime());
 			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 			calendar.set(Calendar.MINUTE, minute);
+			Editor editor = getPreferenceScreen()
+					.getSharedPreferences().edit();
+			String poweroff_time = String.format(
+					"%tR", calendar.getTime());
+			editor.putString(POWEROFF_TIME, poweroff_time);
+			editor.commit();
+			mPowerOffTimePref.setSummary(getPrefStr(POWEROFF_TIME));
+			String poweron_time = getPrefStr(POWERON_TIME);
+			String[] timeoff = poweroff_time.split(":");
+			String[] timeon = poweron_time.split(":");
+			long poweroff = Long.valueOf(poweroff_time.replaceAll("[-\\s:]",""));
+			long poweron = Long.valueOf(poweron_time.replaceAll("[-\\s:]",""));
+			long current = Long.valueOf(current_time.replaceAll("[-\\s:]",""));
+
+			//if the triggerTime < now, it will be triggered next day.
+			if(current > poweroff) {
+                calendar.set(Calendar.DAY_OF_YEAR, current_time_day + 1);
+	        }
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0,
 					intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			Log.e("Advantech", String.valueOf(calendar.getTimeInMillis()));
 			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 			//it link to AlarmManagerService, the set(type) can't be changed
 
-			Editor editor = getPreferenceScreen()
-					.getSharedPreferences().edit();
-			String dummyStr = String.format(
-					"%d:%d",
-					calendar.get(Calendar.AM_PM) == 1 ? calendar
-							.get(Calendar.HOUR) + 12 : calendar
-							.get(Calendar.HOUR), calendar
-							.get(Calendar.MINUTE));
-			editor.putString(POWEROFF_TIME, dummyStr);
-			editor.commit();
-
-			mPowerOffTimePref.setSummary(getPrefStr(POWEROFF_TIME));
-
+			/***********************set power on*************************************/
+			if((current > poweron) ||
+					((current < poweron) && (current > poweroff)) ||
+					((current < poweron) && (poweron < poweroff))) {
+				calendar.set(Calendar.DAY_OF_YEAR, current_time_day + 1);
+			}
+			calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeon[0]));
+			calendar.set(Calendar.MINUTE, Integer.parseInt(timeon[1]));
+			Intent intent_on = new Intent(
+					"com.android.settings.action.REQUEST_POWER_ON");
+			PendingIntent pendingIntent_on = PendingIntent.getBroadcast(getActivity(), 0,
+					intent_on, PendingIntent.FLAG_CANCEL_CURRENT);
+			am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+			am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), pendingIntent_on);
 		}
 
 		public void setPoweron(int hourOfDay, int minute, boolean enable)
@@ -525,33 +539,34 @@ public class DateTimeSettings extends SettingsPreferenceFragment
 			}
 
 			Calendar calendar = Calendar.getInstance();
-
-			//if the triggerTime < now, it will be triggered next day.
-			if(hourOfDay < calendar.get(Calendar.HOUR_OF_DAY) ||
-					(hourOfDay == calendar.get(Calendar.HOUR_OF_DAY) &&
-					(minute < calendar.get(Calendar.MINUTE))))
-				calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+			String current_time = String.format("%tR", calendar.getTime());
 			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 			calendar.set(Calendar.MINUTE, minute);
+			Editor editor = getPreferenceScreen()
+					.getSharedPreferences().edit();
+			String poweron_time = String.format(
+					"%tR", calendar.getTime());
+			editor.putString(POWERON_TIME, poweron_time);
+			editor.commit();
+			mPowerOnTimePref.setSummary(getPrefStr(POWERON_TIME));
+			String poweroff_time = getPrefStr(POWEROFF_TIME);
+			String[] timeoff = poweroff_time.split(":");
+			String[] timeon = poweron_time.split(":");
+			long poweroff = Long.valueOf(poweroff_time.replaceAll("[-\\s:]",""));
+			long poweron = Long.valueOf(poweron_time.replaceAll("[-\\s:]",""));
+			long current = Long.valueOf(current_time.replaceAll("[-\\s:]",""));
+			//if the triggerTime < now, it will be triggered next day.
+			if((current > poweron) ||
+					((current < poweron) && (current > poweroff)) ||
+					((current < poweron) && (poweron < poweroff))) {
+				calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+			}
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0,
 					intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 			am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 			//it link to AlarmManagerService, the set(type) can't be changed
-
-			Editor editor = getPreferenceScreen()
-					.getSharedPreferences().edit();
-			String dummyStr = String.format(
-					"%d:%d",
-					calendar.get(Calendar.AM_PM) == 1 ? calendar
-							.get(Calendar.HOUR) + 12 : calendar
-							.get(Calendar.HOUR), calendar
-							.get(Calendar.MINUTE));
-			editor.putString(POWERON_TIME, dummyStr);
-			editor.commit();
-
-			mPowerOnTimePref.setSummary(getPrefStr(POWERON_TIME));
 		}
 		//advantech
 
