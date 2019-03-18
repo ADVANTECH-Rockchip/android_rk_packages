@@ -47,7 +47,13 @@ import com.android.settings.InstrumentedPreferenceActivity;
 import com.android.settings.R;
 import com.android.settings.Utils;
 
+import java.io.BufferedReader;
 import java.lang.ref.WeakReference;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Display the following information
@@ -68,6 +74,7 @@ public class Status extends InstrumentedPreferenceActivity {
     private static final String KEY_WIMAX_MAC_ADDRESS = "wimax_mac_address";
     private static final String KEY_SIM_STATUS = "sim_status";
     private static final String KEY_IMEI_INFO = "imei_info";
+    private static final String KEY_ETHERNET_MAC_ADDRESS = "ethernet_mac_address";
 
     // Broadcasts to listen to for connectivity changes.
     private static final String[] CONNECTIVITY_INTENTS = {
@@ -96,6 +103,7 @@ public class Status extends InstrumentedPreferenceActivity {
     private Preference mIpAddress;
     private Preference mWifiMacAddress;
     private Preference mWimaxMacAddress;
+    private Preference mEthernetMacAddress;
 
     private Handler mHandler;
 
@@ -156,6 +164,10 @@ public class Status extends InstrumentedPreferenceActivity {
     private boolean hasWimax() {
         return  mCM.getNetworkInfo(ConnectivityManager.TYPE_WIMAX) != null;
     }
+    
+    private boolean showEthernetMacAddress() {
+    	return SystemProperties.getBoolean("persist.ethernetmacaddr", false);
+    }
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -173,6 +185,7 @@ public class Status extends InstrumentedPreferenceActivity {
         mWifiMacAddress = findPreference(KEY_WIFI_MAC_ADDRESS);
         mWimaxMacAddress = findPreference(KEY_WIMAX_MAC_ADDRESS);
         mIpAddress = findPreference(KEY_IP_ADDRESS);
+        mEthernetMacAddress = findPreference(KEY_ETHERNET_MAC_ADDRESS);
 
         mRes = getResources();
         mUnknown = mRes.getString(R.string.device_info_default);
@@ -189,6 +202,11 @@ public class Status extends InstrumentedPreferenceActivity {
         if (!hasWimax()) {
             getPreferenceScreen().removePreference(mWimaxMacAddress);
             mWimaxMacAddress = null;
+        }
+        
+        if (!showEthernetMacAddress()) {
+            getPreferenceScreen().removePreference(mEthernetMacAddress);
+            mEthernetMacAddress = null;
         }
 
         mConnectivityIntentFilter = new IntentFilter();
@@ -305,6 +323,20 @@ public class Status extends InstrumentedPreferenceActivity {
         String macAddress = wifiInfo == null ? null : wifiInfo.getMacAddress();
         mWifiMacAddress.setSummary(!TextUtils.isEmpty(macAddress) ? macAddress : mUnavailable);
     }
+    
+    private void setEthernetStatus() {
+    	if (mEthernetMacAddress == null) {
+    		return;
+    	}
+    	try {
+    		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("/sys/class/net/eth0/address")));
+            String ethernetMacAddress = reader.readLine();
+            mEthernetMacAddress.setSummary(!TextUtils.isEmpty(ethernetMacAddress) ? ethernetMacAddress : mUnavailable);
+            reader.close();
+        } catch (IOException ex) {
+        	
+        }
+    }
 
     private void setIpAddressStatus() {
         String ipAddress = Utils.getDefaultIpAddresses(this.mCM);
@@ -333,6 +365,7 @@ public class Status extends InstrumentedPreferenceActivity {
         setWifiStatus();
         setBtStatus();
         setIpAddressStatus();
+        setEthernetStatus();
     }
 
     void updateTimes() {
