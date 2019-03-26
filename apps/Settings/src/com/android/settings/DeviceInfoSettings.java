@@ -82,6 +82,7 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
     private static final String KEY_DEVICE_FEEDBACK = "device_feedback";
     private static final String KEY_SAFETY_LEGAL = "safetylegal";
+    private static final String KEY_BOARD_VERSION = "board_version";
     private static final String KEY_OS_VERSION = "os_version";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
@@ -193,7 +194,8 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
                 getPreferenceScreen().removePreference(pref);
             }
         }
-        setStringSummary(KEY_OS_VERSION, SystemProperties.get("persist.setting.os_version", getResources().getString(R.string.device_info_default)));
+        setStringSummary(KEY_BOARD_VERSION, SystemProperties.get("ro.setting.board_version", getResources().getString(R.string.device_info_default)));
+        setStringSummary(KEY_OS_VERSION, SystemProperties.get("ro.setting.os_version", getResources().getString(R.string.device_info_default)));
     }
 
     @Override
