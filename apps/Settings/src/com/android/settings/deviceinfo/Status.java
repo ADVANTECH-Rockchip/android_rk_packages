@@ -217,8 +217,13 @@ public class Status extends InstrumentedPreferenceActivity {
         updateConnectivity();
 
         String serial = Build.SERIAL;
+        String sys_serial = Build.SYS_SERIAL;
         if (serial != null && !serial.equals("")) {
-            setSummaryText(KEY_SERIAL_NUMBER, serial);
+            if (serial.equals("unknown")) {
+                setSummaryText(KEY_SERIAL_NUMBER, sys_serial);
+            } else {
+                setSummaryText(KEY_SERIAL_NUMBER, serial);
+            }
         } else {
             removePreferenceFromScreen(KEY_SERIAL_NUMBER);
         }
