@@ -25,21 +25,36 @@ public class AutoPowerBroadcastReceive extends BroadcastReceiver {
 						Activity.MODE_PRIVATE);
 		boolean autoPowerTimeEnabled = sharedPreferences.getBoolean("auto_power", false);
 		if (autoPowerTimeEnabled) {
+			AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			Calendar calendar = Calendar.getInstance();
+
+			String poweroff_time = sharedPreferences.getString(POWEROFF_TIME, "");
+			String poweron_time = sharedPreferences.getString(POWERON_TIME, "23:00");
+			int current_time_day = calendar.get(Calendar.DAY_OF_YEAR);
+			String current_time = String.format("%tR", calendar.getTime());
+			String[] timeoff = poweroff_time.split(":");
+			String[] timeon = poweron_time.split(":");
+			long poweroff = Long.valueOf(poweroff_time.replaceAll("[-\\s:]",""));
+			long poweron = Long.valueOf(poweron_time.replaceAll("[-\\s:]",""));
+			long current = Long.valueOf(current_time.replaceAll("[-\\s:]",""));
+
+			if (from_intent.getAction().equals(Intent.ACTION_SHUTDOWN)) {
+				Intent poweron_intent = new Intent(
+		                "com.android.settings.action.REQUEST_POWER_ON");
+				if(poweron > current) {
+			        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeon[0]));
+			        calendar.set(Calendar.MINUTE, Integer.parseInt(timeon[1]));
+			        calendar.set(Calendar.SECOND, 0);
+			        calendar.set(Calendar.MILLISECOND, 0);
+
+			        PendingIntent poweron_pendingIntent = PendingIntent.getBroadcast(context, 0,
+			                poweron_intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			        am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			        am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), poweron_pendingIntent);
+				}
+			}
+
 			if (from_intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-				Calendar calendar = Calendar.getInstance();
-
-				String poweroff_time = sharedPreferences.getString(POWEROFF_TIME, "");
-				String poweron_time = sharedPreferences.getString(POWERON_TIME, "23:00");
-				int current_time_day = calendar.get(Calendar.DAY_OF_YEAR);
-				String current_time = String.format("%tR", calendar.getTime());
-				String[] timeoff = poweroff_time.split(":");
-				String[] timeon = poweron_time.split(":");
-				long poweroff = Long.valueOf(poweroff_time.replaceAll("[-\\s:]",""));
-				long poweron = Long.valueOf(poweron_time.replaceAll("[-\\s:]",""));
-				long current = Long.valueOf(current_time.replaceAll("[-\\s:]",""));
-				
-				AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
 		        Intent poweroff_intent = new Intent(
 		                "com.android.settings.action.REQUEST_POWER_OFF");
 

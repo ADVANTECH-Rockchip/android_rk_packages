@@ -593,6 +593,9 @@
             <intent-filter>
                 <action android:name="com.android.settings.action.REQUEST_POWER_ON"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+            </intent-filter>
         </receiver>
 
         <activity android:name="DateTimeSettingsSetupWizard"
