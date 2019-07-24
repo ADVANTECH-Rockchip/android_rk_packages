@@ -146,6 +146,8 @@ public class Settings extends SettingsActivity {
         /* empty */ }
     public static class ManageAppExternalSourcesActivity extends SettingsActivity { /* empty */ }
 
+    public static class EthernetSettingsActivity extends SettingsActivity { /* empty */ }
+
     public static class WifiCallingSuggestionActivity extends SettingsActivity { /* empty */ }
     public static class FingerprintEnrollSuggestionActivity extends FingerprintEnrollIntroduction {
         /* empty */

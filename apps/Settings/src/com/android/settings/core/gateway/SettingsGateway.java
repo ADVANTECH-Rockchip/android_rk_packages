@@ -23,6 +23,7 @@ import com.android.settings.DateTimeSettings;
 import com.android.settings.DeviceAdminSettings;
 import com.android.settings.DeviceInfoSettings;
 import com.android.settings.DisplaySettings;
+import com.android.settings.EthernetSettings;
 import com.android.settings.HdmiSettings;
 import com.android.settings.IccLockSettings;
 import com.android.settings.MasterClear;
@@ -151,6 +152,7 @@ public class SettingsGateway {
             TetherSettings.class.getName(),
             WifiP2pSettings.class.getName(),
             VpnSettings.class.getName(),
+            EthernetSettings.class.getName(),
             DateTimeSettings.class.getName(),
             LocaleListEditor.class.getName(),
             AvailableVirtualKeyboardFragment.class.getName(),
