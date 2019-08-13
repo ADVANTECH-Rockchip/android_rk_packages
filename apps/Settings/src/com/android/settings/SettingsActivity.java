@@ -843,6 +843,11 @@ public class SettingsActivity extends SettingsDrawerActivity
                 pm.hasSystemFeature(PackageManager.FEATURE_PRINTING), isAdmin)
                 || somethingChanged;
 
+        if(SystemProperties.getBoolean("persist.endevmode", false)){
+            SharedPreferences.Editor editor=mDevelopmentPreferences.edit();  
+            editor.putBoolean(DevelopmentSettings.PREF_SHOW, true);  
+            editor.commit();  
+        }
         final boolean showDev = mDevelopmentPreferences.getBoolean(
                 DevelopmentSettings.PREF_SHOW, android.os.Build.TYPE.equals("eng"))
                 && !um.hasUserRestriction(UserManager.DISALLOW_DEBUGGING_FEATURES);
