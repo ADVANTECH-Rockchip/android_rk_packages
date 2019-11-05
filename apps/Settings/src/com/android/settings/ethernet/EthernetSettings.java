@@ -33,8 +33,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -91,8 +89,6 @@ public class EthernetSettings extends SettingsPreferenceFragment
     private static final String KEY_ETH_DNS2 = "ethernet_dns2";
     private static final String KEY_ETH_MODE= "ethernet_mode_select";
 
-    private static int oldState = -1;
-    private static boolean mEthClicked = true;
     
     private  static String mEthHwAddress = null;
     private  static String mEthIpAddress = null;
@@ -139,20 +135,9 @@ public class EthernetSettings extends SettingsPreferenceFragment
 	*/
     private void handleEtherStateChange(int EtherState ) {
 	log("curEtherState"+ EtherState);
-	log("oldEtherState's "+ oldState);
-	if (oldState == EthernetManager.ETHER_STATE_CONNECTING
-			&& EtherState == EthernetManager.ETHER_STATE_DISCONNECTED
-			  && mEthCheckBox.isChecked()) {
-		oldState = -1;
-		EtherReset();
-		return;
-	} else {
-		oldState = EtherState;
-	}
+		
 	switch(EtherState) {
 	case EthernetManager.ETHER_STATE_DISCONNECTED:
-		if (!mEthClicked)
-			return;
 		mEthHwAddress = nullIpInfo;
 		mEthIpAddress = nullIpInfo;
 		mEthNetmask = nullIpInfo;
@@ -175,34 +160,6 @@ public class EthernetSettings extends SettingsPreferenceFragment
 	} 
 		
 	refreshUI();
-    }
-
-    private Handler mHandler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            if(msg.what == 1)
-                mEthManager.setEthernetEnabled(false);
-            if(msg.what == 2)
-                mEthManager.setEthernetEnabled(true);
-        }
-    };
-
-    public void EtherReset() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mEthClicked = false;
-                mHandler.sendEmptyMessage(1);
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (!mEthClicked)
-                    mHandler.sendEmptyMessage(2);
-                mEthClicked = true;
-            }
-        }).start();
     }
 	
     @Override
@@ -339,7 +296,6 @@ public class EthernetSettings extends SettingsPreferenceFragment
     	
         if (preference == mEthCheckBox) {
             boolean newState = mEthCheckBox.isChecked();
-            mEthClicked = true;
             if(newState) {
                 log("turn on Ethernet");
                 mEthManager.setEthernetEnabled(true);   
