@@ -15,9 +15,16 @@
  */
 package com.android.settings.system;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.os.PowerManager;
 import android.os.UserManager;
+import android.support.v7.preference.Preference;
 import android.provider.SearchIndexableResource;
+import android.util.Log;
+import android.view.WindowManager;
 
 import com.android.internal.logging.nano.MetricsProto;
 import com.android.settings.R;
@@ -28,17 +35,31 @@ import com.android.settings.deviceinfo.SystemUpdatePreferenceController;
 import com.android.settings.gestures.GesturesSettingPreferenceController;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.search.Indexable;
+import com.android.settings.system.RebootPreferenceController;
 import com.android.settingslib.core.AbstractPreferenceController;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SystemDashboardFragment extends DashboardFragment {
+public class SystemDashboardFragment extends DashboardFragment implements
+        Preference.OnPreferenceClickListener {
 
     private static final String TAG = "SystemDashboardFrag";
 
     private static final String KEY_RESET = "reset_dashboard";
+    private static final String KEY_REBOOT = "reboot";
+    
+    private Preference mRebootPreference;
+    public PowerManager pManager;
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mRebootPreference = (Preference) findPreference(KEY_REBOOT);
+        mRebootPreference.setOnPreferenceClickListener(this);
+        pManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+    }
 
     @Override
     public int getMetricsCategory() {
@@ -71,8 +92,44 @@ public class SystemDashboardFragment extends DashboardFragment {
         controllers.add(new AdditionalSystemUpdatePreferenceController(context));
         controllers.add(new BackupSettingsActivityPreferenceController(context));
         controllers.add(new GesturesSettingPreferenceController(context));
+        controllers.add(new RebootPreferenceController(context));
         return controllers;
     }
+    
+    public boolean onPreferenceClick(Preference preference) {
+    	final String key = preference.getKey();
+    	
+        if (key.equals(KEY_REBOOT)) {
+        	justShowDialog();
+        }
+    	return true;
+    }
+    
+    private void justShowDialog() {
+    	Log.e("advantech", "onclick");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+            .setIcon(android.R.drawable.ic_dialog_info)
+            .setTitle("Reboot")
+            .setMessage("Reboot or not？")
+            .setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog,
+                            int whichButton) { 
+                      pManager.reboot("");
+                  }
+                })
+            .setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog,
+                            int whichButton) {
+                  }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.getWindow().setType((WindowManager.LayoutParams.TYPE_SYSTEM_ALERT));
+        dialog.show();
+      }
 
     /**
      * For Search.

@@ -16,6 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="hide_toolbar_str">永久隐藏工具栏</string>
+    <string name="hide_toolbar_summary">状态栏和导航栏隐藏</string>
+    <string name="reboot_str">重启系统</string>
+    <string name="reboot_summary">操作前保证无其他后台运行程序，以免导致数据丢失</string>
     <string name="yes" msgid="4676390750360727396">"是"</string>
     <string name="no" msgid="6731231425810196216">"否"</string>
     <string name="create" msgid="3578857613172647409">"创建"</string>

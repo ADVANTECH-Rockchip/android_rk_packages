@@ -17,7 +17,11 @@
 package com.android.settings;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.SystemProperties;
 import android.provider.SearchIndexableResource;
+import android.util.Log;
+import android.view.View;
 
 import com.android.internal.hardware.AmbientDisplayConfiguration;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -39,15 +43,21 @@ import com.android.settings.display.ThemePreferenceController;
 import com.android.settings.display.TimeoutPreferenceController;
 import com.android.settings.display.VrDisplayPreferenceController;
 import com.android.settings.display.WallpaperPreferenceController;
+import com.android.settings.display.HideToolBarPreferenceController;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.search.Indexable;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.core.lifecycle.Lifecycle;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceGroup;
+import android.support.v7.preference.PreferenceScreen;
+import android.support.v14.preference.SwitchPreference;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisplaySettings extends DashboardFragment {
+public class DisplaySettings extends DashboardFragment implements
+        Preference.OnPreferenceChangeListener {
     private static final String TAG = "DisplaySettings";
 
     public static final String KEY_AUTO_BRIGHTNESS = "auto_brightness";
@@ -56,6 +66,18 @@ public class DisplaySettings extends DashboardFragment {
     private static final String KEY_SCREEN_TIMEOUT = "screen_timeout";
     private static final String KEY_AMBIENT_DISPLAY = "ambient_display";
     private static final String KET_HDMI_SETTINGS = "hdmi_settings";
+    private static final String KEY_TOOLBAR_SETTINGS = "hide_toolbar";
+    
+    private SwitchPreference mHideToolbarPreference;
+    public View decorView;
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        decorView = getActivity().getWindow().getDecorView();
+        mHideToolbarPreference = (SwitchPreference) findPreference(KEY_TOOLBAR_SETTINGS);
+        mHideToolbarPreference.setOnPreferenceChangeListener(this);
+    }
 
     @Override
     public int getMetricsCategory() {
@@ -92,6 +114,7 @@ public class DisplaySettings extends DashboardFragment {
             Context context, Lifecycle lifecycle) {
         final List<AbstractPreferenceController> controllers = new ArrayList<>();
         controllers.add(new AutoBrightnessPreferenceController(context, KEY_AUTO_BRIGHTNESS));
+        controllers.add(new HideToolBarPreferenceController(context, KEY_TOOLBAR_SETTINGS));
         controllers.add(new AutoRotatePreferenceController(context, lifecycle));
         controllers.add(new CameraGesturePreferenceController(context));
         controllers.add(new FontSizePreferenceController(context));
@@ -112,6 +135,34 @@ public class DisplaySettings extends DashboardFragment {
         controllers.add(new ColorModePreferenceController(context));
         controllers.add(new HdmiSettingsPreferenceController(context, KET_HDMI_SETTINGS));
         return controllers;
+    }
+    
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+    	final String key = preference.getKey();
+    	
+        if (key.equals(KEY_TOOLBAR_SETTINGS)) {
+            boolean isShow = (Boolean)newValue;
+            ShowToolBar(isShow);
+        }
+
+        return true;
+    }
+    
+    public void ShowToolBar(boolean isShow) {
+        SystemProperties.set("persist.statusbar", "" + isShow);
+        SystemProperties.set("persist.navbar", "" + isShow);
+        if(!isShow){
+            decorView.setSystemUiVisibility(
+            		View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        } else {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
 
     public static final Indexable.SearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =

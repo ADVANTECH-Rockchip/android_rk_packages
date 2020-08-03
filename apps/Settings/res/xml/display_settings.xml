@@ -51,6 +51,11 @@
             android:targetPackage="@string/config_wallpaper_picker_package"
             android:targetClass="@string/config_wallpaper_picker_class" />
     </com.android.settingslib.RestrictedPreference>
+    
+    <SwitchPreference
+        android:key="hide_toolbar"
+        android:title="@string/hide_toolbar_str"
+        android:summary="@string/hide_toolbar_summary" />
 
     <!-- Cross-listed item, if you change this, also change it in power_usage_summary.xml -->
     <com.android.settings.TimeoutListPreference

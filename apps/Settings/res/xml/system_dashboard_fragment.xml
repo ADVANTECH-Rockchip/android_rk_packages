@@ -24,6 +24,13 @@
         android:icon="@drawable/ic_settings_gestures"
         android:order="-250"
         android:fragment="com.android.settings.gestures.GestureSettings" />
+    
+    <Preference
+        android:key="reboot"
+        android:title="@string/reboot_str"
+        android:icon="@drawable/ic_skip"
+        android:order="-200"
+        android:summary="@string/reboot_summary" />
 
     <!-- Backup -->
     <Preference

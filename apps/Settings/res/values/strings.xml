@@ -14,6 +14,10 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="hide_toolbar_str">Toolbar Hiding Permanent</string>
+    <string name="hide_toolbar_summary">StatusBar and NavigationBar Hiding</string>
+    <string name="reboot_str">Reboot</string>
+    <string name="reboot_summary">ensure that there are no other background running programs to avoid data loss</string>
     <!-- Strings for Dialog yes button -->
     <string name="yes">"Yes"</string>
     <!-- Strings for Dialog no button -->
