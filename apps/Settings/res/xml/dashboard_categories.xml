@@ -219,6 +219,13 @@
                 android:icon="@drawable/ic_settings_backup"
                 />
 
+        <!-- BackHome -->
+        <dashboard-tile
+                android:id="@+id/backhome_settings"
+                android:title="@string/backhome_settings"
+                android:icon="@drawable/ic_settings_home" >
+        </dashboard-tile>
+
     </dashboard-category>
 
     <!-- SYSTEM -->

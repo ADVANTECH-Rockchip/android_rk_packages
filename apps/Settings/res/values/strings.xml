@@ -17,6 +17,7 @@
     <!-- Advantech added to screen rotation -->
     <string name="screen_rotation_settings_title">"Screen rotation"</string>
     
+    <string name="backhome_settings">"BackHome"</string>
     <!-- Strings for Dialog yes button -->
     <string name="yes">"Yes"</string>
     <!-- Strings for Dialog no button -->
